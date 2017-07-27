@@ -11,7 +11,7 @@ namespace app\api\validate;
 
 use think\Request;
 use think\Validate;
-use Think\Exception;
+use think\Exception;
 
 class BaseValidate extends Validate
 {

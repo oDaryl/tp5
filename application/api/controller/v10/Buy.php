@@ -13,6 +13,7 @@ use app\api\validate\ConfirmPayValidate;
 use app\api\validate\EndTask;
 use app\api\validate\ModifyDesc;
 use app\api\validate\ModifyTitle;
+use app\api\validate\SendEmailValidate;
 use app\api\validate\TuoGuan;
 use think\Db;
 use Think\Exception;
@@ -243,8 +244,24 @@ class Buy   extends BuyValidate
     }
 
 //任务发送站内信给投稿人
-    public function sendEmail(){
-        if(1){
+    public function sendEmail(Request $request){
+        $data = $request->param();
+        (new SendEmailValidate())->goCheck();
+        unset($data['version']);
+        unset($data['name']);
+//return json($data);
+        //message
+        $result = Db::name('message')
+            ->insert($data);
+
+        //会员表message+1
+        $result2 = Db::name('member')
+            ->where('username','=',$data['touser'])
+            ->setInc('message');
+
+
+
+        if($result && $result2){
             return  json(['code'=>200,'msg'=>'成功']);
         }else{
             return  json(['code'=>200,'msg'=>'失败']);
