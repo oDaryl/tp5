@@ -247,26 +247,83 @@ class Buy   extends BuyValidate
     public function sendEmail(Request $request){
         $data = $request->param();
         (new SendEmailValidate())->goCheck();
+        $data['status'] = '3';
         unset($data['version']);
         unset($data['name']);
 //return json($data);
         //message
-        $result = Db::name('message')
-            ->insert($data);
+
+
+
 
         //会员表message+1
         $result2 = Db::name('member')
             ->where('username','=',$data['touser'])
             ->setInc('message');
 
+        if( !$result2){
+            return  json(['code'=>500,'msg'=>'失败']);
+        }
 
 
-        if($result && $result2){
-            return  json(['code'=>200,'msg'=>'成功']);
+        $result = Db::name('message')
+            ->insert($data);
+
+        $userId = Db::name('message')->getLastInsID();
+
+
+
+
+        if( $result){
+            return  json(['code'=>200,'msg'=>'成功,此次插入id为'.$userId]);
         }else{
-            return  json(['code'=>200,'msg'=>'失败']);
+            return  json(['code'=>500,'msg'=>'失败']);
+        }
+
+
+
+    }
+
+//任务对应投稿者以及其相关信息接口
+//接口地址 120.76.78.213/tp5/public/index.php/v10/buy/SubmissionDetail
+//get请求
+//投稿人 username
+//投稿人id uid
+//等级图片 seller_lvvel
+//投稿时间 work_time
+//是否浏览 is_view
+//留言 work_desc
+//图（附件） work_pic
+//task_id 与上面任务相关
+//select m.truename,a.*,b.avatarpic,b.seller_credit,b.seller_good_num,b.address,b.seller_total_num,b.seller_level from yw_witkey_task_work a left join yw_company b   on a.uid=b.userid INNER JOIN  yw_member m on b.userid = m.userid
+
+    public function SubmissionDetail(){
+        $data = Db::name('witkey_task_work')
+                ->field('m.truename,a.*,b.avatarpic,b.seller_credit,b.seller_good_num,b.address,b.seller_total_num,b.seller_level')
+                ->alias('a')
+                ->join('company b','a.uid=b.userid','LEFT')
+                ->join('member m','b.userid = m.userid')
+                ->select();
+        foreach($data as $k => $v){
+            $arr = array("\r","\n","\t","&nbsp;","&nbsp;");
+
+            $data[$k]['work_desc'] = str_replace($arr,"",strip_tags(htmlspecialchars_decode($v['work_desc'])));
+            if (unserialize($v['seller_level'])) {
+                $v['seller_level'] = unserialize($v['seller_level']);
+                $data[$k]['seller_level'] = DT_PATH .'/'.substr(strstr($v['seller_level']['pic'], '<'), 10, 35);
+            }else{
+                $data[$k]['seller_level'] = DT_PATH."/file/upload/201702/15/170351491.gif";
+            }
+        }
+
+        if($data){
+//            return  json([$data,'code'=>200,'msg'=>'成功']);
+            return  json($data);
+        }else{
+            return  json(['code'=>500,'msg'=>'失败']);
         }
     }
+
 }
 
 
