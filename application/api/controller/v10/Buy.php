@@ -7,12 +7,14 @@
  */
 namespace app\api\controller\v10;
 use app\api\controller\v1\Category;
+use app\api\model\Company;
 use app\api\model\Member as MemberModel;
 use app\api\validate\BuyValidate;
 use app\api\validate\ConfirmPayValidate;
 use app\api\validate\EndTask;
 use app\api\validate\ModifyDesc;
 use app\api\validate\ModifyTitle;
+use app\api\validate\SendCommentValidate;
 use app\api\validate\SendEmailValidate;
 use app\api\validate\TuoGuan;
 use think\Db;
@@ -292,11 +294,15 @@ class Buy   extends BuyValidate
 //等级图片 seller_lvvel
 //投稿时间 work_time
 //是否浏览 is_view
-//留言 work_desc
+//描述 work_desc
 //图（附件） work_pic
 //task_id 与上面任务相关
 //select m.truename,a.*,b.avatarpic,b.seller_credit,b.seller_good_num,b.address,b.seller_total_num,b.seller_level from yw_witkey_task_work a left join yw_company b   on a.uid=b.userid INNER JOIN  yw_member m on b.userid = m.userid
-
+//1 = '所有的';
+//2 = '未浏览的';
+//4 = '中标';
+//5 = '入围';
+//7 = '淘汰';
     public function SubmissionDetail(){
         $data = Db::name('witkey_task_work')
                 ->field('m.truename,a.*,b.avatarpic,b.seller_credit,b.seller_good_num,b.address,b.seller_total_num,b.seller_level')
@@ -306,13 +312,17 @@ class Buy   extends BuyValidate
                 ->select();
         foreach($data as $k => $v){
             $arr = array("\r","\n","\t","&nbsp;","&nbsp;");
-
             $data[$k]['work_desc'] = str_replace($arr,"",strip_tags(htmlspecialchars_decode($v['work_desc'])));
             if (unserialize($v['seller_level'])) {
                 $v['seller_level'] = unserialize($v['seller_level']);
                 $data[$k]['seller_level'] = DT_PATH .'/'.substr(strstr($v['seller_level']['pic'], '<'), 10, 35);
             }else{
                 $data[$k]['seller_level'] = DT_PATH."/file/upload/201702/15/170351491.gif";
+            }
+            if($v['avatarpic']){
+                $data[$k]['avatarpic'] =DT_PATH.$v['avatarpic'];
+            }else{
+                $data[$k]['avatarpic'] =DT_PATH.'file/upload/default.jpg';
             }
         }
 
@@ -324,6 +334,60 @@ class Buy   extends BuyValidate
         }
     }
 
+    //任务对应评论
+    public function HistoryComment()
+    {
+        //Db类使用读取器无效？
+        $data = Db::name('comment')
+            ->alias('t')
+            ->join('company y ','y.username = t.username')
+            ->field('t.content,t.addtime,t.item_id,y.username,y.avatarpic')
+            ->where('qid','=','0')
+            ->select();
+        foreach ($data as $k => $v) {
+            if($v['avatarpic']){
+                $data[$k]['avatarpic'] =DT_PATH.$v['avatarpic'];
+            }else{
+                $data[$k]['avatarpic'] =DT_PATH.'file/upload/default.jpg';
+            }
+            $data[$k]['addtime'] = date('Y-m-d H:i:s',$data[$k]['addtime']);
+        }
+        if ($data) {
+            return json($data);
+        } else {
+            return json(['code' => 500, 'msg' => '失败']);
+        }
+    }
+
+    //post请求
+    //
+    public function SendComment(Request $request)
+    {
+        (new SendCommentValidate())->goCheck();
+        $data = $request->param();
+        $data['quotation'] = '';
+        $data['passport'] = '';
+        $data['reply'] = '';
+        $data['obj_type'] = 'task';
+        $data['status'] = 0;
+        $data['addtime'] =time();
+        unset($data['version']);
+        unset($data['name']);
+        $result = Db::name('comment')->insertGetId($data);
+        if( $result){
+            return  json(['code'=>200,'msg'=>'成功,此次插入id为'.$result]);
+        }else{
+            return  json(['code'=>500,'msg'=>'失败']);
+        }
+
+
+
+    }
+
+//    public function read()
+//    {
+//        //如此读取器有效
+//        $user = Company::get(1);
+//        echo $user->avatarpic . '<br/>';
+//    }
 }
-
-

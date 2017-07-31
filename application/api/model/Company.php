@@ -11,4 +11,9 @@ use think\Model;
 
 class Company extends Model
 {
+    // 头像读取器
+    protected function getAvatarpicAttr($avatarpic)
+    {
+        return DT_PATH.$avatarpic;
+    }
 }
