@@ -373,7 +373,8 @@ class Buy   extends BuyValidate
         $data['addtime'] =time();
         unset($data['version']);
         unset($data['name']);
-        $result = Db::name('comment')->insertGetId($data);
+        $result = Db::name('comment')
+            ->insertGetId($data);
         if( $result){
             return  json(['code'=>200,'msg'=>'成功,此次插入id为'.$result]);
         }else{

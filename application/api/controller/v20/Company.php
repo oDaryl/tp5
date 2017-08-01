@@ -7,7 +7,6 @@
  */
 
 namespace app\api\controller\v20;
-use app\api\model\Company as CompanyModel;
 
 class Company
 {

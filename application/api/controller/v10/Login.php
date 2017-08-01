@@ -21,33 +21,22 @@ class Login extends LoginValidate
 
         $data = $request->param();
         $data['username'] = strip_tags(trim($data['username']));
-        $data['password'] = trim($data['password']);
+        $data['password'] = strip_tags(trim($data['password']));
         if(!check_name($data['username'])){
-            return json('用户名格式错误');
+            return json(['code'=>500,'msg'=>'用户名格式错误']);
         }
         $user = Db::name('member')
             ->where('username','=',$data['username'])
-//            ->field('username,password,passsalt,userid')
+            ->field('password,payword,passsalt,paysalt',true)
             ->select();
         if(!$user){
-            return json('用户不存在');
+            return json(['code'=>500,'msg'=>'用户不存在']);
         }
 
-//        echo '前端传过来'.$data['password'];
-//        echo '<br/>';
-//        echo '加密后'.dpassword($data['password'], $user['0']['passsalt']);echo '<br/>';
-//        var_dump($user['0']['password']);
-//        echo '<hr/>';
-//        return 'asd';
-
         if($user['0']['password'] != dpassword($data['password'], $user['0']['passsalt'])){
-            return json('密码错误');
+            return json(['code'=>500,'msg'=>'密码错误']);
         }else{
             return json(['code'=>200,'msg'=>'登录成功']);
         }
-
-
-
-
     }
 }

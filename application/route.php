@@ -19,6 +19,8 @@ use think\Route;
 Route::rule(':version/company/:name','api/:version.company/:name');
 Route::rule(':version/buy/:name','api/:version.buy/:name');
 Route::rule(':version/login/:name','api/:version.login/:name');
+Route::rule(':version/read/:name','api/:version.read/:name');
+Route::rule(':version/news/:name','api/:version.news/:name');
 
 
 

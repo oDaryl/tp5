@@ -10,6 +10,7 @@ use think\Db;
 
 class News{
     public function readAll(){
+
         $list = Db::table('yw_news')
             ->alias('n')
             ->join('yw_news_data d','n.itemid=d.itemid')

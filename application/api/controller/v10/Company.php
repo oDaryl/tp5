@@ -8,8 +8,11 @@
 
 namespace app\api\controller\v10;
 use app\api\model\Company as CompanyModel;
+use app\api\validate\PicCommentValidate;
 use think\Db;
 use app\extend\tool;
+use think\Request;
+
 class Company
 {
 //    public function read($userid=''){
@@ -687,5 +690,28 @@ class Company
             }
 
         }
+
+
+    public function picComment(Request $request){
+        (new PicCommentValidate())->goCheck();
+        $data = $request->param();
+        $data['addtime'] = time();
+        $data['status'] = 3;
+//        $data['item_mid'] = 12;
+        $data['star'] = 3;
+        $data['passport'] = $data['username'];
+        unset($data['version']);
+        unset($data['userid']);
+        unset($data['name']);
+
+        $result = Db::name('comment')
+            ->insertGetId($data);
+        var_dump($result);
+        echo '<hr/>';
+        return 'asd';
+
+
+
+    }
 
 }

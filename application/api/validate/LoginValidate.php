@@ -12,7 +12,7 @@ namespace app\api\validate;
 class LoginValidate extends BaseValidate
 {
     protected $rule = [
-        'username' =>'require',
-        'password' =>'require',
+        'username' =>'require|min:2',
+        'password' =>'require|min:5',
     ];
 }
