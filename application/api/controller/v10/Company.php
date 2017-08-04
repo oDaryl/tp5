@@ -220,6 +220,8 @@ class Company
         $list = Db::name('photo_item_12')
             ->alias('i')
             ->join('yw_photo_12 p','i.item = p.itemid')
+            ->field('i.item,i.thumb,p.itemid,p.items,p.introduce,p.username,p.edittime,p.hits')
+            ->where('status','=','3')
             ->select();
         foreach($list as $k=>$v){
             $list[$k]['edittime'] = date('Y-m-d',$v['edittime']);
