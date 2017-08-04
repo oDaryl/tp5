@@ -194,7 +194,9 @@ class Company
 
     }
 
-    public function pictureitem(){
+
+//每个人有哪些图片目录（顶级的相片）
+    public function pictureItem(){
         $list = Db::name('photo_12')
             ->select();
 
@@ -213,6 +215,31 @@ class Company
         }
     }
 
+//    查出顶级下面对应的子集图片
+    public function pictureSon(){
+        $list = Db::name('photo_item_12')
+            ->alias('i')
+            ->join('yw_photo_12 p','i.item = p.itemid')
+            ->select();
+        foreach($list as $k=>$v){
+            $list[$k]['edittime'] = date('Y-m-d',$v['edittime']);
+            if($v['thumb']){
+                $list[$k]['thumb'] = DT_PATH.'/'.$v['thumb'];
+            }
+        }
+
+        if($list){
+            return json($list);
+        }else{
+            return json(['error'=>'数据不存在'],404);
+        }
+
+
+    }
+
+
+
+//    每个相片的评论（现在是顶级，应该是错误的，应该是子级才对）
     public function picture(){
         $list = Db::name('photo_12')
             ->alias('p')
