@@ -14,7 +14,7 @@ class BuyValidate extends Validate{
         'model_id'   => 'require|max:1|number',
         'uid'        => 'require|number',
         'task_cash'  => 'require|number|>:0',
-        'contact'    => 'require|number',
+//        'contact'    => 'require|number',//有的人没有
         'indus_fid'  => 'require|number',
         'indus_pid'  => 'require|number',
         'indus_id'   => 'require|number',

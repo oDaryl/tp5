@@ -27,16 +27,22 @@ class Login extends LoginValidate
         }
         $user = Db::name('member')
             ->where('username','=',$data['username'])
-            ->field('password,payword,passsalt,paysalt',true)
+            ->field('payword,paysalt',true)
             ->select();
         if(!$user){
-            return json(['code'=>500,'msg'=>'用户不存在']);
+            return json(['code'=>500,'msg'=>'用户不存在','useinfo'=>$user]);
         }
 
-        if($user['0']['password'] != dpassword($data['password'], $user['0']['passsalt'])){
+        $user = $user['0'];
+
+        if($user['password'] != dpassword($data['password'], $user['passsalt'])){
             return json(['code'=>500,'msg'=>'密码错误']);
         }else{
-            return json(['code'=>200,'msg'=>'登录成功']);
+            unset($user['password']);
+            unset($user['passsalt']);
+
+//            return json(['userInfo' => $user,'code'=>200,'msg'=>'登录成功']);
+            return json(['code'=>200,'msg'=>'登录成功','useinfo'=>$user]);
         }
     }
 }

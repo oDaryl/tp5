@@ -16,11 +16,6 @@ class PicCommentValidate extends BaseValidate
         'username'=>'require',
         'item_id'=>'require',
 //        'item_mid'=>'require',//现在不知道是啥
-        'item_title'=>'require',
         'content'=>'require|min:5|max:500',
     ];
-
-//    protected $msg = [
-//        'item_username'
-//    ];
 }

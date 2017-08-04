@@ -697,21 +697,26 @@ class Company
         $data = $request->param();
         $data['addtime'] = time();
         $data['status'] = 3;
-//        $data['item_mid'] = 12;
+        $data['item_mid'] = 0;
         $data['star'] = 3;
+        $data['quotation'] = '';
+        $data['reply'] = '';
         $data['passport'] = $data['username'];
+
         unset($data['version']);
         unset($data['userid']);
         unset($data['name']);
 
         $result = Db::name('comment')
+//            ->fetchSql(true)
             ->insertGetId($data);
-        var_dump($result);
-        echo '<hr/>';
-        return 'asd';
 
 
-
+    if($result){
+        return json(['success' =>200,'msg'=>'成功，插入id为'.$result]);
+    } else {
+        return json(['error' =>500,'msg'=>'插入失败']);
+     }
     }
 
 }
