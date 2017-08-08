@@ -373,9 +373,14 @@ class Buy   extends BuyValidate
         $data['addtime'] =time();
         unset($data['version']);
         unset($data['name']);
+
         $result = Db::name('comment')
             ->insertGetId($data);
-        if( $result){
+        $result2 = Db::name('witkey_task')
+            ->where('task_id','=',$data['item_id'])
+            ->setInc('leave_num');
+
+        if( $result && $result2){
             return  json(['code'=>200,'msg'=>'成功,此次插入id为'.$result]);
         }else{
             return  json(['code'=>500,'msg'=>'失败']);
