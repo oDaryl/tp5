@@ -13,7 +13,7 @@ class setBlackValidate extends BaseValidate
 {
     protected $rule = [
         'username' =>'require',
-        'username' =>'require|token',
+//        'username' =>'require|token',
         'black'    =>'require',
     ];
 
