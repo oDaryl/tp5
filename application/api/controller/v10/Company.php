@@ -781,10 +781,9 @@ class Company
             ->where('username','=',$data['username'])
             ->update($add);
         if($result){
-            return json(['success' =>200,'msg'=>$data['black'].'设为黑名单成功']);
+            return json(['success' =>200,'msg'=>'设置成功，目前黑名单为：'.$data['black']]);
         } else {
             return json(['error' =>500,'msg'=>'黑名单设置失败']);
         }
     }
-
 }
