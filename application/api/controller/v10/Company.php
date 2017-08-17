@@ -9,6 +9,7 @@
 namespace app\api\controller\v10;
 use app\api\model\Company as CompanyModel;
 use app\api\validate\PicCommentValidate;
+use app\api\validate\setBlackValidate;
 use think\Db;
 use app\extend\tool;
 use think\Request;
@@ -636,14 +637,23 @@ class Company
             ->alias('a')
             ->join('witkey_task_cash_cove d','a.task_cash_coverage=d.cash_rule_id','left')
             ->where('model_id','IN','1,2,3,4,5,6')
-            ->where('a.task_status','NOT IN','0,1,10')
+//            ->where('a.task_status','NOT IN','0,1,10')
             ->order('a.tasktop desc')
+//            ->fetchSql(true)
             ->select();
+
         foreach($list as $k=>$v){
             $list[$k]['task_desc'] = str_replace("&nbsp;","",strip_tags(htmlspecialchars_decode($v['task_desc'])));
             $list[$k]['start_time'] =date('Y-m-d',$v['start_time']);
             $list[$k]['sub_time'] =date('Y-m-d',$v['sub_time']);
+            if($list[$k]['cash_cost'] == -1){
+                $list[$k]['tuoguan'] = 1;
+            }else{
+                $list[$k]['tuoguan'] = 0;
+            }
         }
+
+
 
         if ($list) {
             return json($list);
@@ -746,6 +756,35 @@ class Company
     } else {
         return json(['error' =>500,'msg'=>'插入失败']);
      }
+    }
+
+    public function setBlack(Request $request){
+        (new setBlackValidate())->goCheck();
+        $data = $request->param();
+        unset($data['version']);
+        unset($data['name']);
+
+        $old = Db::name('member')
+//            ->fetchSql(true)
+            ->field('black')
+            ->where('username','=',$data['username'])
+        ->select();
+
+        //黑名单存在则不再添加
+        $oldExplode = explode(' ',$old[0]['black']);
+        if(in_array($data['black'],$oldExplode)){
+           return json(['error' =>500,'msg'=>'黑名单已存在']);
+        }
+        $data['black'] = $old[0]['black'].' '.$data['black'];
+        $add = array('black'=>$data['black']);
+        $result = Db::name('member')
+            ->where('username','=',$data['username'])
+            ->update($add);
+        if($result){
+            return json(['success' =>200,'msg'=>$data['black'].'设为黑名单成功']);
+        } else {
+            return json(['error' =>500,'msg'=>'黑名单设置失败']);
+        }
     }
 
 }

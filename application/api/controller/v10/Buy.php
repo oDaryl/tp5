@@ -12,6 +12,8 @@ use app\api\model\Member as MemberModel;
 use app\api\validate\BuyValidate;
 use app\api\validate\ConfirmPayValidate;
 use app\api\validate\EndTask;
+use app\api\validate\GetArea;
+use app\api\validate\GetCategory;
 use app\api\validate\ModifyDesc;
 use app\api\validate\ModifyTitle;
 use app\api\validate\SendCommentValidate;
@@ -385,8 +387,40 @@ class Buy   extends BuyValidate
         }else{
             return  json(['code'=>500,'msg'=>'失败']);
         }
+    }
+
+    public function getArea(Request $request){
+        (new GetArea())->goCheck();
+        $data = $request->param();
+        $area = $data['area'];
+        $result = Db::name('witkey_task')
+            ->where('area','like',$area.'%')
+            ->field('task_id,area')
+            ->select();
+
+        if( $result ){
+            return  json(['code'=>200,'msg'=>'成功,','info' => $result]);
+        }else{
+            return  json(['code'=>500,'msg'=>'失败']);
+        }
+
+    }
 
 
+    public function getCategory(Request $request){
+        (new GetCategory())->goCheck();
+        $data = $request->param();
+        $indus_id = $data['indus_id'];
+        $result = Db::name('witkey_task')
+            ->where('indus_id','=',$indus_id)
+            ->field('task_id,indus_id')
+            ->select();
+
+        if( $result ){
+            return  json(['code'=>200,'msg'=>'成功,','info' => $result]);
+        }else{
+            return  json(['code'=>500,'msg'=>'失败']);
+        }
 
     }
 
