@@ -15,6 +15,7 @@ class PicCommentValidate extends BaseValidate
         'item_username'=>'require',
         'username'=>'require',
         'item_id'=>'require',
+        'userid'=>'require',
 //        'item_mid'=>'require',//现在不知道是啥
         'content'=>'require|min:5|max:500',
     ];

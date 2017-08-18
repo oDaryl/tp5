@@ -732,6 +732,9 @@ class Company
 
 
     public function picComment(Request $request){
+        if(!is_login()){
+            return  json(['code' =>5000,'请先登录']);
+        };
         (new PicCommentValidate())->goCheck();
         $data = $request->param();
         $data['addtime'] = time();

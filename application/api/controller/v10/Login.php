@@ -35,6 +35,7 @@ class Login extends LoginValidate
 
         $user = $user['0'];
 
+
         if($user['password'] != dpassword($data['password'], $user['passsalt'])){
             return json(['code'=>500,'msg'=>'密码错误']);
         }else{
@@ -42,7 +43,30 @@ class Login extends LoginValidate
             unset($user['passsalt']);
 
 //            return json(['userInfo' => $user,'code'=>200,'msg'=>'登录成功']);
-            return json(['code'=>200,'msg'=>'登录成功','useinfo'=>$user]);
+            $roundChar = roundChar();
+            $token = md5(md5($user['username'].$roundChar));
+            $data = [
+                'uid'=>$user['userid'],
+                'token'=>$token,
+//                'username'=>$user['username']
+            ];
+
+
+
+            $uid = Db::name('token')
+                ->where('uid','=',$user['userid'])
+                ->field('uid')
+                ->select();
+
+            if(!$uid){
+                $result = Db::name('token')
+                    ->insert($data);
+            }else{
+                Db::name('token')
+                    ->where('uid','=',$user['userid'])
+                    ->update(['token'=>$token]);
+            }
+            return json(['code'=>200,'msg'=>'登录成功','useinfo'=>$user,'token'=>$token]);
         }
     }
 }
